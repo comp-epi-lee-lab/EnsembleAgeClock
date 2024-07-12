@@ -60,7 +60,7 @@ import streamlit as st
 st.title("Ensemble Aging Clock :alarm_clock:")
 
 
-input_file = st.file_uploader("Please choose a CSV file; Download example file here: [example](https://github.com/hayanlee/EnsembleMeAgingClock/blob/main/examples/individual01.csv)")
+input_file = st.file_uploader("Please choose a CSV file; Download example file here: [example](https://github.com/hayanlee/EnsembleMe-MobiCom4AgeTech/blob/main/examples/individual01.csv)")
 
 
 
@@ -470,7 +470,7 @@ if input_file is not None:
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
                 text=['EnsembleNaive: ' + str(preds[-1])],  # Custom hover text
                 textposition="middle right",
-                textfont=dict(size=10),
+                textfont=dict(size=13),
                 showlegend=False
             ))
             fig.add_trace(go.Scatter(
@@ -480,14 +480,32 @@ if input_file is not None:
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
                 text=['EnsembleLR: ' + str(ensembleLR_pred)],  # Custom hover text
                 textposition="middle right",
-                textfont=dict(size=10),
+                textfont=dict(size=13),
                 showlegend=False
             ))
-            coords = [-0.80, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1]
+            coords = [-0.80, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6]
             custom_colors = ['#AFE1AF', '#00A7E1', '#89CFF0', '#50C878', '#009245', '#F08080', '#FFD700', '#9370DB']
             
             selected_preds = [altum_selected, hannum_selected, horvath_selected, pheno_selected, horvath_sb_selected, zhangEn_selected, han2020_selected, yingCausal_selected]
-            
+
+            sorted_indices = np.argsort(preds[:-1])
+            reordered_indices = []
+            half = len(sorted_indices) // 2
+            for i in range(half):
+                reordered_indices.append(sorted_indices[i])
+                reordered_indices.append(sorted_indices[-(i+1)])
+
+            # If there's an odd number of elements, add the middle one at the end
+            if len(sorted_indices) % 2 != 0:
+                reordered_indices.append(sorted_indices[half])
+
+            reordered_indices = np.array(reordered_indices)
+
+            # Use the reordered indices to sort both preds[:-1] and text
+
+            preds[:-1] = (np.array(preds[:-1])[reordered_indices]).tolist()
+            text = (np.array(text)[reordered_indices]).tolist()
+
             for i, (pred, selected) in enumerate(zip(preds[:-1], text)):
                     fig.add_trace(go.Scatter(
                         x=[coords[i]],  # x-coordinate for the point
@@ -495,7 +513,7 @@ if input_file is not None:
                         mode='markers + text',
                         text=[text[i] + ': ' + str(pred)],  # Custom hover text
                         textposition="middle right",
-                        textfont=dict(size=10),
+                        textfont=dict(size=13),
                         marker=dict(size=8, color=custom_colors[i]),
                         name=f'Point {i+1}',  # Name for the legend
                         showlegend=False
