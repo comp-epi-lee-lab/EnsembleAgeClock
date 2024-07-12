@@ -55,6 +55,15 @@ yingCausAge_cpgs = yingCausAge_params['feature'][1:].tolist()
 
 han2020_cpgs = han2020_coefs.cpgs
 
+file_list = ['tools/altum_cpgs_list.txt', 'tools/hannum_cpgs_list.txt', 'tools/horvath_cpgs_list.txt', 'tools/pheno_cpgs_list.txt', 'tools/horvath_SB_cpgs_list.txt', 'tools/han_cpgs_list.txt', 'tools/ying_cpgs_list.txt', 'tools/zhang_cpgs_list.txt']
+all_clock_cpgs = []
+for file in file_list:
+        with open(file, 'r') as file:
+            cpgs_list = file.readlines()
+
+        cpgs_list = [line.strip() for line in cpgs_list]
+        all_clock_cpgs = all_clock_cpgs + cpgs_list
+all_clock_cpgs = list(set(all_clock_cpgs))
 
 import streamlit as st
 st.title("Ensemble Aging Clock :alarm_clock:")
@@ -316,54 +325,49 @@ if input_file is not None:
     
     
     df = pd.read_csv(input_file, sep=r'[,\t]', engine='python')
-    file_list = ['tools/altum_cpgs_list.txt', 'tools/hannum_cpgs_list.txt', 'tools/horvath_cpgs_list.txt', 'tools/pheno_cpgs_list.txt', 'tools/horvath_SB_cpgs_list.txt', 'tools/han_cpgs_list.txt', 'tools/ying_cpgs_list.txt', 'tools/zhang_cpgs_list.txt']
     # Create an empty list to store the overlapping values
-    overlapping_cpgs = []
-    all_missing_values = []
-    # Iterate through the files in file_list
-    for file in file_list:
-        count = 0
-        with open(file, 'r') as file:
-            cpgs_list = file.readlines()
+    # overlapping_cpgs = []
+    # all_missing_values = []
+    # # Iterate through the files in file_list
+    # for cpgs_list in all_clock_cpgs:
+    #     count = 0
 
-        cpgs_list = [line.strip() for line in cpgs_list]
-    
+    #     # Filter the DataFrame rows to only include rows with overlapping values
+    #     overlapping_values = df[df.iloc[:, 0].isin(cpgs_list)]
 
-        # Filter the DataFrame rows to only include rows with overlapping values
-        overlapping_values = df[df.iloc[:, 0].isin(cpgs_list)]
+    #     # Extend the overlapping_cpgs list with the filtered values from the DataFrame
+    #     overlapping_cpgs.extend(overlapping_values.values.tolist())
 
-        # Extend the overlapping_cpgs list with the filtered values from the DataFrame
-        overlapping_cpgs.extend(overlapping_values.values.tolist())
+    #     # Convert the overlapping_cpgs list into a DataFrame
+    #     overlapping_df = pd.DataFrame(overlapping_cpgs, columns=df.columns)
 
-        # Convert the overlapping_cpgs list into a DataFrame
-        overlapping_df = pd.DataFrame(overlapping_cpgs, columns=df.columns)
-
-        # Now you can iterate over this overlapping DataFrame as you did before
-        for i, row in overlapping_df.iloc[1:].iterrows():
-            for j, val in enumerate(row[1:], start=1):
-                if pd.isnull(val) or val == 0:
-                    count = count + 1
+    #     # Now you can iterate over this overlapping DataFrame as you did before
+    #     for i, row in overlapping_df.iloc[1:].iterrows():
+    #         for j, val in enumerate(row[1:], start=1):
+    #             if pd.isnull(val) or val == 0:
+    #                 count = count + 1
                     
-                    #print("For" , file, ": ", "Row Label:", overlapping_df.iloc[i, 0], "Column Label:", overlapping_df.columns[j])
+    #                 #print("For" , file, ": ", "Row Label:", overlapping_df.iloc[i, 0], "Column Label:", overlapping_df.columns[j])
         
-        file_name = file.name
-        print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", count, " 0 or NA values")
+    #     file_name = file.name
+    #     print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", count, " 0 or NA values")
         
-        missing_values = set(cpgs_list) - set(df.iloc[:, 0])
-        all_missing_values = all_missing_values + list(missing_values)
+    #     missing_values = set(cpgs_list) - set(df.iloc[:, 0])
+    #     all_missing_values = all_missing_values + list(missing_values)
  
-        print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", len(missing_values), "missing CpGs")
+    #     print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", len(missing_values), "missing CpGs")
     
-    all_missing_values = list(set(all_missing_values))
+    all_missing_values = set(all_clock_cpgs) - set(df.iloc[:, 0])
     for value in all_missing_values:
         new_row = [value] + [np.nan] * (df.shape[1] - 1)  # Create a new row with value and 0.5 in other columns
         # print(new_row)
         df.loc[len(df)] = new_row  # Add new row to DataFrame
     
+    df.fillna(np.nan, inplace=True)
+
     labels = df.iloc[:, 0]  # Assuming the first column contains the CPG labels
     methylation_data = df.iloc[:, 1:]  # Assuming the methylation data starts from the second column
 
-    df.fillna(np.nan, inplace=True)
 
     # Impute missing values using IterativeImputer
     imputer_iterative = IterativeImputer(max_iter=10, random_state=0)  # You can adjust max_iter as needed
@@ -378,14 +382,7 @@ if input_file is not None:
  
     df = imputed_df_iterative
 
-
-    
-
     if True:
-    
-        
-        
-
         # Calculate predictions
         preds = []
     
@@ -424,7 +421,15 @@ if input_file is not None:
         preds.append(average)
 
         with col2: 
-            st.write(" ")
+            st.write("")
+            st.write("")
+            st.write("")
+            st.write("")
+            st.write("")
+            st.write("")
+            st.write("")
+            st.write("")
+
             st.write("EnsembleNaive: " + average + "*")
             st.write("EnsembleLR: " + str(ensembleLR_pred) + "*")
             text= []
@@ -464,26 +469,26 @@ if input_file is not None:
             fig = go.Figure()
             
             fig.add_trace(go.Scatter(
-                x = [-1.0], 
+                x = [-0.7], 
                 y = np.array([preds[-1]]),
                 mode = 'markers + text',
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
                 text=['EnsembleNaive: ' + str(preds[-1])],  # Custom hover text
                 textposition="middle right",
-                textfont=dict(size=13),
+                textfont=dict(size=14),
                 showlegend=False
             ))
             fig.add_trace(go.Scatter(
-                x = [-0.9], 
+                x = [-0.6], 
                 y = np.array([ensembleLR_pred]),
                 mode = 'markers + text',
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
                 text=['EnsembleLR: ' + str(ensembleLR_pred)],  # Custom hover text
                 textposition="middle right",
-                textfont=dict(size=13),
+                textfont=dict(size=14),
                 showlegend=False
             ))
-            coords = [-0.80, -0.6, -0.4, -0.2, 0.0, 0.2, 0.4, 0.6]
+            coords = [-0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2]
             custom_colors = ['#AFE1AF', '#00A7E1', '#89CFF0', '#50C878', '#009245', '#F08080', '#FFD700', '#9370DB']
             
             selected_preds = [altum_selected, hannum_selected, horvath_selected, pheno_selected, horvath_sb_selected, zhangEn_selected, han2020_selected, yingCausal_selected]
@@ -513,7 +518,7 @@ if input_file is not None:
                         mode='markers + text',
                         text=[text[i] + ': ' + str(pred)],  # Custom hover text
                         textposition="middle right",
-                        textfont=dict(size=13),
+                        textfont=dict(size=14),
                         marker=dict(size=8, color=custom_colors[i]),
                         name=f'Point {i+1}',  # Name for the legend
                         showlegend=False
