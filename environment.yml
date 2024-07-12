@@ -1,0 +1,11 @@
+name: base
+channels:
+  - defaults
+dependencies:
+  - scipy
+  - matplotlib
+  - plotly
+  - scikit-learn
+  - numpy==1.23.5
+  - tensorflow==2.12.0
+  - openpyxl
