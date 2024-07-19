@@ -449,10 +449,10 @@ if input_file is not None:
                 st.write("Skin Blood: " + horvath_sb_prediction)
                 text.append("Skin Blood")
             if zhangEn_selected:
-                st.write("Zhang2019 Clock: " + zhangEn_pred)
+                st.write("Zhang2019: " + zhangEn_pred)
                 text.append("Zhang2019")
             if han2020_selected:
-                st.write("Han2020 Clock: " + han2020_pred)
+                st.write("Han2020: " + han2020_pred)
                 text.append("Han2020")
             if yingCausal_selected:
                 st.write("YingCausalAge: " + yingCausal_pred)
@@ -473,7 +473,7 @@ if input_file is not None:
                 y = np.array([preds[-1]]),
                 mode = 'markers + text',
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
-                text=['EnsembleNaive: ' + str(preds[-1])],  # Custom hover text
+                text=['EnsembleNaive: ' + str(round(float(preds[-1])))],  # Custom hover text
                 textposition="middle right",
                 textfont=dict(size=14),
                 showlegend=False
@@ -483,7 +483,7 @@ if input_file is not None:
                 y = np.array([ensembleLR_pred]),
                 mode = 'markers + text',
                 marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
-                text=['EnsembleLR: ' + str(ensembleLR_pred)],  # Custom hover text
+                text=['EnsembleLR: ' + str(round(float(ensembleLR_pred)))],  # Custom hover text
                 textposition="middle right",
                 textfont=dict(size=14),
                 showlegend=False
@@ -516,7 +516,7 @@ if input_file is not None:
                         x=[coords[i]],  # x-coordinate for the point
                         y=[pred],  # y-coordinate for the point
                         mode='markers + text',
-                        text=[text[i] + ': ' + str(pred)],  # Custom hover text
+                        text=[text[i] + ': ' + str(round(float(pred)))],  # Custom hover text
                         textposition="middle right",
                         textfont=dict(size=14),
                         marker=dict(size=8, color=custom_colors[i]),
@@ -533,13 +533,13 @@ if input_file is not None:
                 showlegend=False
             ))
 
-            numeric_preds = [float(value) for value in preds[:-1]]
+            numeric_preds = [float(value) for value in preds] + [ensembleLR_pred]
             max_value = max(numeric_preds) + 5
             min_value = min(numeric_preds) - 5
             fig.update_yaxes(range=[min_value, max_value])
             fig.update_yaxes(tickfont=dict(size=20))
             fig.update_layout(
-                title_text="Ensemble Aging Clock Predictions",                          
+                title_text="Ensemble Aging Clock Predictions",     
                 shapes=[
                     dict(
                         type="rect",
@@ -559,6 +559,7 @@ if input_file is not None:
                 xaxis=dict(
                     showticklabels=False  # Remove x-axis tick labels
                 ),
+                yaxis=dict(title='Epigenetic Age in Years', title_font=dict(size=18)),
                 width=650,  # Adjust width to make the plot narrower
                 height=700,  # Adjust height to make the plot longer
             )
