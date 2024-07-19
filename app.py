@@ -29,15 +29,12 @@ AltumAge_cpgs = np.array(pd.read_pickle('clocks/altum_cpgs.pkl'))
 scaler = pd.read_pickle('clocks/altum_scaler.pkl')
 AltumAge = tf.keras.models.load_model('clocks/AltumAge.h5')
 
-#all_grim_cpgs = grim_cpgs.iloc[2:, 1].tolist()
 
 df_cpg_coeff = pd.read_csv("clocks/hannum_coeffs.csv").set_index("Marker")
 
-#all_hannum_cpgs = df_cpg_coeff.index.tolist()
 
 df_slope = pd.read_csv("clocks/horvath_coeffs.csv")
 
-#all_horvath_cpgs = df_slope.iloc[1:, 0].tolist()
 
 df_coeff_pheno = pd.read_csv("clocks/pheno_coeffs.csv").set_index("CpG")
 df_horvath_sb = pd.read_csv("clocks/horvath_skin_blood_coeff.csv")
@@ -73,18 +70,6 @@ input_file = st.file_uploader("Please choose a CSV file; Download example files 
 
 
 
-
-# Check if a file has been uploaded
-#if input_file is not None:
-    # Process the uploaded file and display a message
- #   st.write("File uploaded and processed.")'''
-
-#input_file = st.file_uploader("Please choose a CSV file [Single Sample Example File](examples/individual01.csv) [Multi Sample Example File](examples/dat0BloodIllumina450K.csv)")
-
-
-
-#selected_tab = st.selectbox("Select Sample Type", ["Single Sample", "Multiple Sample", "Single Sample With GrimAge"])
-
 def get_altum_age(df_meth):
     df_meth = df_meth.set_index(df_meth.columns[0])
     meth_data = df_meth.loc[AltumAge_cpgs].transpose()
@@ -93,29 +78,24 @@ def get_altum_age(df_meth):
     return pred_age_AltumAge
 
 def get_hannum_age(df_meth):
-    #print('hannum1', file=sys.stderr)
+    
     df_meth = df_meth.set_index(df_meth.columns[0])
     
-    #print('hannum2', file=sys.stderr)
-    # Get the common row labels between df1 and df2
+    
     common_labels = df_cpg_coeff.index.intersection(df_meth.index)
-    # Select only the rows in df2 that have matching row labels with df1 in the same order
+   
     df_meth = df_meth.loc[common_labels]
-    #print('hannum3', file=sys.stderr)
+    
     coef = np.array(df_cpg_coeff["Coefficient"][1:] )
-    #coef
+   
      
     intercept = 18.695467523254287
     
     
     sample_methylation = np.array(df_meth[1:])
-    #print('hannum', file=sys.stderr)
-    #print(sample_methylation, file=sys.stderr)
-    #print(sample_methylation.shape, file=sys.stderr)
-    #print(len(coef), file=sys.stderr)
+   
     pred = np.matmul(coef, sample_methylation) - intercept
-    #print(pred, file=sys.stderr)
-    #print('hannum4', file=sys.stderr)
+   
     return pred
 
 
@@ -164,9 +144,9 @@ def get_pheno_age(df):
     df_sample = df.set_index(df.columns[0])
     
    
-    # Get the common row labels between df1 and df2
+    
     common_labels = df_cpg_coeff_pheno.index.intersection(df_sample.index)
-    # Select only the rows in df2 that have matching row labels with df1 in the same order
+    
     df_sample = df_sample.loc[common_labels]
     
     coef = np.array(df_cpg_coeff_pheno["Weight"])
@@ -192,13 +172,10 @@ def get_horvath_sb_age(df):
 
     df_sample = df.set_index(df.columns[0])
     
-    #print(df_sample)
-   
-
-    # Get the common row labels between df1 and df2
+    
     common_labels = df_cpg_coeff_horvath_sb.index.intersection(df_sample.index)
     
-    # Select only the rows in df2 that have matching row labels with df1 in the same order
+    
     df_sample = df_sample.loc[common_labels]
     
     
@@ -208,7 +185,6 @@ def get_horvath_sb_age(df):
 
 
     sample_methylation = np.array(df_sample)
-    #sample_methylation = np.ravel(sample_methylation)
 
     
     
@@ -240,7 +216,7 @@ def get_ZhangEn_age(df):
         row_means = np.mean(x, axis=1, keepdims=True)
         row_stds = np.std(x, axis=1, keepdims=True)
 
-        # Avoid division by zero in case of a row with constant value
+       
         row_stds[row_stds == 0] = 1
 
         x_scaled = (x - row_means) / row_stds
@@ -291,10 +267,8 @@ st.write("Select clocks for EnsembleNaive. The default selection has been shown 
 
 st.write("")
 
-# Create columns to display checkboxes side by side
 col1, col2, col3, col4 = st.columns(4)
 
-# Checkbox for each clock model in respective columns
 
 with col1:
     
@@ -321,69 +295,33 @@ col1, col2 = st.columns([3, 1])
 
 if input_file is not None:
     print("1")
-    # Function to find missing values and compare with cpg lists
     
     
     df = pd.read_csv(input_file, sep=r'[,\t]', engine='python')
-    # Create an empty list to store the overlapping values
-    # overlapping_cpgs = []
-    # all_missing_values = []
-    # # Iterate through the files in file_list
-    # for cpgs_list in all_clock_cpgs:
-    #     count = 0
 
-    #     # Filter the DataFrame rows to only include rows with overlapping values
-    #     overlapping_values = df[df.iloc[:, 0].isin(cpgs_list)]
-
-    #     # Extend the overlapping_cpgs list with the filtered values from the DataFrame
-    #     overlapping_cpgs.extend(overlapping_values.values.tolist())
-
-    #     # Convert the overlapping_cpgs list into a DataFrame
-    #     overlapping_df = pd.DataFrame(overlapping_cpgs, columns=df.columns)
-
-    #     # Now you can iterate over this overlapping DataFrame as you did before
-    #     for i, row in overlapping_df.iloc[1:].iterrows():
-    #         for j, val in enumerate(row[1:], start=1):
-    #             if pd.isnull(val) or val == 0:
-    #                 count = count + 1
-                    
-    #                 #print("For" , file, ": ", "Row Label:", overlapping_df.iloc[i, 0], "Column Label:", overlapping_df.columns[j])
-        
-    #     file_name = file.name
-    #     print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", count, " 0 or NA values")
-        
-    #     missing_values = set(cpgs_list) - set(df.iloc[:, 0])
-    #     all_missing_values = all_missing_values + list(missing_values)
- 
-    #     print("For" , file_name.replace("tools/", "").replace("_cpgs_list.txt", ""), ": there are: ", len(missing_values), "missing CpGs")
-    
     all_missing_values = set(all_clock_cpgs) - set(df.iloc[:, 0])
     for value in all_missing_values:
-        new_row = [value] + [np.nan] * (df.shape[1] - 1)  # Create a new row with value and 0.5 in other columns
-        # print(new_row)
-        df.loc[len(df)] = new_row  # Add new row to DataFrame
+        new_row = [value] + [np.nan] * (df.shape[1] - 1)  
+        df.loc[len(df)] = new_row 
     
     df.fillna(np.nan, inplace=True)
 
-    labels = df.iloc[:, 0]  # Assuming the first column contains the CPG labels
-    methylation_data = df.iloc[:, 1:]  # Assuming the methylation data starts from the second column
+    labels = df.iloc[:, 0]  
+    methylation_data = df.iloc[:, 1:]  
 
 
     # Impute missing values using IterativeImputer
-    imputer_iterative = IterativeImputer(max_iter=10, random_state=0)  # You can adjust max_iter as needed
+    imputer_iterative = IterativeImputer(max_iter=10, random_state=0) 
     imputed_data_iterative = imputer_iterative.fit_transform(methylation_data)
 
-    # Convert imputed data back to DataFrame
-    # Create the DataFrame
+    
     imputed_df_iterative = pd.DataFrame(imputed_data_iterative, columns=methylation_data.columns)
 
-    # Add the labels as the first column
     imputed_df_iterative.insert(0, 'Labels', labels)
  
     df = imputed_df_iterative
 
     if True:
-        # Calculate predictions
         preds = []
     
         altum_prediction = str(round(np.float32(get_altum_age(df)[0]), 2))
@@ -472,8 +410,8 @@ if input_file is not None:
                 x = [-0.7], 
                 y = np.array([preds[-1]]),
                 mode = 'markers + text',
-                marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
-                text=['EnsembleNaive: ' + str(round(float(preds[-1])))],  # Custom hover text
+                marker=dict(size=8, color = 'rgb(255, 0, 0)'), 
+                text=['EnsembleNaive: ' + str(round(float(preds[-1])))],  
                 textposition="middle right",
                 textfont=dict(size=14),
                 showlegend=False
@@ -482,8 +420,8 @@ if input_file is not None:
                 x = [-0.6], 
                 y = np.array([ensembleLR_pred]),
                 mode = 'markers + text',
-                marker=dict(size=8, color = 'rgb(255, 0, 0)'),  # Adjust marker size here
-                text=['EnsembleLR: ' + str(round(float(ensembleLR_pred)))],  # Custom hover text
+                marker=dict(size=8, color = 'rgb(255, 0, 0)'),  
+                text=['EnsembleLR: ' + str(round(float(ensembleLR_pred)))], 
                 textposition="middle right",
                 textfont=dict(size=14),
                 showlegend=False
@@ -500,27 +438,25 @@ if input_file is not None:
                 reordered_indices.append(sorted_indices[i])
                 reordered_indices.append(sorted_indices[-(i+1)])
 
-            # If there's an odd number of elements, add the middle one at the end
             if len(sorted_indices) % 2 != 0:
                 reordered_indices.append(sorted_indices[half])
 
             reordered_indices = np.array(reordered_indices)
 
-            # Use the reordered indices to sort both preds[:-1] and text
 
             preds[:-1] = (np.array(preds[:-1])[reordered_indices]).tolist()
             text = (np.array(text)[reordered_indices]).tolist()
 
             for i, (pred, selected) in enumerate(zip(preds[:-1], text)):
                     fig.add_trace(go.Scatter(
-                        x=[coords[i]],  # x-coordinate for the point
-                        y=[pred],  # y-coordinate for the point
+                        x=[coords[i]], 
+                        y=[pred],  
                         mode='markers + text',
-                        text=[text[i] + ': ' + str(round(float(pred)))],  # Custom hover text
+                        text=[text[i] + ': ' + str(round(float(pred)))], 
                         textposition="middle right",
                         textfont=dict(size=14),
                         marker=dict(size=8, color=custom_colors[i]),
-                        name=f'Point {i+1}',  # Name for the legend
+                        name=f'Point {i+1}',  
                         showlegend=False
                     ))
             
@@ -557,11 +493,11 @@ if input_file is not None:
                     )
                 ],
                 xaxis=dict(
-                    showticklabels=False  # Remove x-axis tick labels
+                    showticklabels=False  
                 ),
                 yaxis=dict(title='Epigenetic Age in Years', title_font=dict(size=18)),
-                width=650,  # Adjust width to make the plot narrower
-                height=700,  # Adjust height to make the plot longer
+                width=650,  
+                height=700,  
             )
 
             st.plotly_chart(fig, use_container_width=True)
