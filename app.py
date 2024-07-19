@@ -69,7 +69,7 @@ import streamlit as st
 st.title("Ensemble Aging Clock :alarm_clock:")
 
 
-input_file = st.file_uploader("Please choose a CSV file; Download example file here: [example](https://github.com/comp-epi-lee-lab/EnsembleMe-MobiCom4AgeTech/tree/main/examples/individual01.csv)")
+input_file = st.file_uploader("Please choose a CSV file; Download example files here: [test sample files](https://github.com/comp-epi-lee-lab/EnsembleMe-MobiCom4AgeTech/tree/main/examples)")
 
 
 
