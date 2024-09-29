@@ -64,6 +64,7 @@ all_clock_cpgs = list(set(all_clock_cpgs))
 
 import streamlit as st
 st.title("EnsembleAge Clock :alarm_clock:")
+selected_tab = st.radio("Select Sample Type", ["Single Sample", "Multiple Sample"])
 
 
 input_file = st.file_uploader("Please choose a CSV file; Download example files here: [test sample files](https://github.com/comp-epi-lee-lab/EnsembleMe-MobiCom4AgeTech/tree/main/examples)")
@@ -321,7 +322,7 @@ if input_file is not None:
  
     df = imputed_df_iterative
 
-    if True:
+    if selected_tab == "Single Sample":
         preds = []
     
         altum_prediction = str(round(np.float32(get_altum_age(df)[0]), 2))
@@ -502,7 +503,44 @@ if input_file is not None:
 
             st.plotly_chart(fig, use_container_width=True)
                 
-    
+    elif selected_tab == "Multiple Sample":
+             #try:
+                                        
+                #print('3', file=sys.stderr)
+                altum_pred = np.expand_dims(np.float32(get_altum_age(df)), axis=0)
+                #print('4', file=sys.stderr)
+                #print(altum_pred)
+                hannum_pred = np.expand_dims(np.float32(get_hannum_age(df)), axis=0)
+                #print('5', file=sys.stderr)
+                horvath_pred = np.expand_dims(np.float32(get_horvath_age(df)), axis=0)
+                #print('6', file=sys.stderr)
+                pheno_pred = np.expand_dims(np.float32(get_pheno_age(df)), axis=0)
+                #print('7', file=sys.stderr)
+                horvath_sb_pred = np.expand_dims(np.float32(get_horvath_sb_age(df)), axis=0)
+                #print('8', file=sys.stderr)
+                
+                
+
+                pred_zhangEn = np.expand_dims(np.float32(get_ZhangEn_age(df)), axis=0)
+                pred_han2020 = np.expand_dims(np.float32(get_Han2020_age(df)), axis=0)
+                pred_yingCaus = np.expand_dims(np.float32(get_YingCaus_age(df)), axis=0)
+
+                results = np.concatenate([(0.34 * altum_pred) + (-0.21 * pred_han2020) + (-0.52 * hannum_pred) + (0.28 * horvath_pred) + (horvath_sb_pred * 0.19) + (-0.02 * pheno_pred) + (-0.09 * pred_yingCaus) + (0.56 * pred_zhangEn) + 19.28,np.mean([altum_pred, hannum_pred, horvath_pred, pheno_pred, horvath_sb_pred, pred_zhangEn, pred_han2020, pred_yingCaus],axis=0), hannum_pred, horvath_pred, pheno_pred, horvath_sb_pred, altum_pred, pred_zhangEn, pred_han2020, pred_yingCaus]).T
+                        #print(results.shape)
+                columns = ['EnsembleLR', 'EnsembleNaive','HannumClock', 'HorvathClock', 'PhenoAge', 'HorvathSkinBlood', 'AltumAge', "ZhangEn", "Han2020", "YingCausal"]
+                df = pd.DataFrame(data = results, columns = columns, index=df.columns[1:])    
+                def convert_df(df):
+                        return df.to_csv(index=True).encode('utf-8')
+                
+                csv = convert_df(df)
+                st.dataframe(df)
+                st.download_button(
+                "Download Result",
+                csv,
+                "file.csv",
+                mime="text/csv",
+                key='download-csv'
+                )  
 
         
             
