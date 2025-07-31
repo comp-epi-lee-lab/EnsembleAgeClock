@@ -4,6 +4,8 @@
 
 Our web service is available at: https://ensemble.epiclock.app/
 
+![Alt text](examples/ensembleAge_webservie.png)
+
 ## How to prepare your sample files
 
 Single Sample Upload: 
