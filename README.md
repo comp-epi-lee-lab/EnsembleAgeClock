@@ -1,4 +1,4 @@
-# EnsembleMeAgingClock
+# EnsembleAge Clock
 
 ## How to prepare your sample files
 
