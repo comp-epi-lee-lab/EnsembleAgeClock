@@ -310,6 +310,10 @@ if input_file is not None:
     labels = df.iloc[:, 0]  
     methylation_data = df.iloc[:, 1:]  
 
+    # Count missing values before imputation for statistics
+    total_values = methylation_data.size
+    missing_values = methylation_data.isna().sum().sum()
+    imputation_percentage = (missing_values / total_values) * 100
 
     # Impute missing values using IterativeImputer
     imputer_iterative = IterativeImputer(max_iter=10, random_state=0) 
@@ -502,6 +506,10 @@ if input_file is not None:
             )
 
             st.plotly_chart(fig, use_container_width=True)
+        
+        # Display imputation statistics for single sample
+        st.write("")
+        st.write(f"**{missing_values} CpGs ({imputation_percentage:.1f}%) were imputed using scikit-learn's IterativeImputer**")
                 
     elif selected_tab == "Multiple Sample":
              #try:
@@ -541,6 +549,17 @@ if input_file is not None:
                 mime="text/csv",
                 key='download-csv'
                 )  
+                
+                # Display imputation statistics for multiple sample
+                st.write("")
+                st.write(f"**{missing_values} CpGs ({imputation_percentage:.1f}%) were imputed using scikit-learn's IterativeImputer**")
+
+# Add footer information at the bottom of the app
+st.write("")
+st.write("")
+st.write("---")
+st.write("**Contact:** Any inquiries to Hayan.Lee@fccc.edu")
+st.write("**Privacy:** We don't save any data.")
 
         
             
