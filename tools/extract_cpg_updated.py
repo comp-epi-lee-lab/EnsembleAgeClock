@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
 
 
 import pandas as pd
@@ -35,22 +32,4 @@ filtered_csv = filtered_csv.iloc[: , 1:]
 # Write the output csv file, it will be transposed for the EnsembleMeAgingClock
 output_file = sys.argv[2]
 filtered_csv.to_csv(output_file)
-
-
-# In[ ]:
-
-
-
-
-
-# In[23]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
